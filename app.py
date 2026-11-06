@@ -2233,22 +2233,7 @@ def main() -> None:
         st.markdown("<style>" + css_path.read_text(encoding="utf-8") + "</style>", unsafe_allow_html=True)
 
     st.markdown(
-        """
-        <div class="sr-dashboard-top">
-          <div class="sr-dashboard-heading">
-            <span class="sr-eyebrow">ABC POWDER · PILOT PRODUCTION PLANT</span>
-            <h1>Supply Risk <span>Dashboard</span></h1>
-            <p>Monte Carlo decision intelligence for materials, sourcing and production capacity.</p>
-          </div>
-          <div class="sr-dashboard-photo">
-            <img src="https://drive.google.com/thumbnail?id=1joPV7jUfA2CVr5bBJzDsNcOXmak1adSB&amp;sz=w1200" alt="ABC dry powder fire extinguisher" />
-          </div>
-        </div>
-        <div class="sr-section-intro sr-dashboard-section">
-          <div><span class="sr-kicker">SIMULATION WORKSPACE</span><h2>Analysis &amp; scenarios</h2></div>
-          <span class="sr-ready"><span>●</span> Interactive models</span>
-        </div>
-        """,
+        '<div class="sr-mini-brand"><span>🧯 &nbsp; ABC POWDER</span><span>SUPPLY RISK · MONTE CARLO STUDIO</span><span class="sr-flame">◆ PILOT PLANT</span></div>',
         unsafe_allow_html=True,
     )
 
@@ -2266,17 +2251,13 @@ def main() -> None:
         label_visibility="collapsed",
         key="portfolio_active_module",
     )
-    st.markdown('<div class="sr-detail-heading"><strong>Interactive analysis</strong><span>Overview · Parameters · Results · Export</span></div>', unsafe_allow_html=True)
 
     if selected_module == "◈  Raw Materials & Sourcing":
         _render_supply_chain()
     else:
         _render_ramp()
 
-    st.markdown(
-        '<div class="sr-footer"><span>ABC POWDER PILOT PLANT</span><span>Monte Carlo decision intelligence · Built with Python & Streamlit</span></div>',
-        unsafe_allow_html=True,
-    )
+
 
 
 if __name__ == "__main__":
