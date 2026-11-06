@@ -2145,8 +2145,8 @@ def main() -> None:
 
     st.markdown(
         """
-        <section class="sr-hero">
-          <div class="sr-hero-content">
+        <section class="sr-hero sr-fire-hero">
+          <div class="sr-ember-field" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="sr-hero-content">
             <span class="sr-eyebrow">ABC DRY POWDER / PILOT PRODUCTION PLANT</span>
             <h1>Secure the materials.<br><span>Protect the production plan.</span></h1>
             <p>Monte Carlo risk analysis for an ABC dry-powder fire-extinguisher pilot plant. Evaluate raw-material availability, local versus imported sourcing, and production ramp-up under uncertainty.</p>
@@ -2157,7 +2157,7 @@ def main() -> None:
             </div>
           </div>
           <div class="sr-hero-photo" aria-label="ABC dry powder fire extinguishers">
-            <img src="https://drive.google.com/thumbnail?id=1sNzLkbDfCamvdpQyu6I2qw2fzKhfJDnD&amp;sz=w1200" alt="ABC dry powder fire extinguishers used as visual reference for the pilot plant" loading="eager" />
+            <img src="https://drive.google.com/thumbnail?id=1joPV7jUfA2CVr5bBJzDsNcOXmak1adSB&amp;sz=w1200" alt="ABC dry powder extinguisher against an industrial fire-themed background" loading="eager" />
           </div>
           <div class="sr-hero-graphic" aria-hidden="true">
             <div class="sr-orbit sr-orbit-one"></div>
