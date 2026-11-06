@@ -421,9 +421,12 @@ def _seasonality_inputs(key_prefix: str, seasonality_state: dict) -> Seasonality
 
 
 def _render_supply_chain() -> None:
-    tabs = st.tabs(["Paramètres", "Résultats", "Export"])
+    tabs = st.tabs(["Vue d’ensemble", "Paramètres", "Résultats", "Export"])
 
     with tabs[0]:
+        _render_landscape_overview("◈  Raw Materials & Sourcing")
+
+    with tabs[1]:
         st.subheader("Supply Chain — Paramètres")
 
         if st.button("Reset notebook defaults", key="supply_reset"):
@@ -719,7 +722,7 @@ def _render_supply_chain() -> None:
             }
             st.success(f"Monte Carlo terminé en {elapsed:.2f}s.")
 
-    with tabs[1]:
+    with tabs[2]:
         st.subheader("Supply Chain — Résultats")
         results = st.session_state.get("supply_results")
         kpi_df = st.session_state.get("supply_kpi_df")
@@ -845,7 +848,7 @@ def _render_supply_chain() -> None:
                     )
                     _portfolio_chart(fig3, use_container_width=True)
 
-    with tabs[2]:
+    with tabs[3]:
         st.subheader("Supply Chain — Export")
         results = st.session_state.get("supply_results")
         kpi_df = st.session_state.get("supply_kpi_df")
@@ -1251,7 +1254,10 @@ def _render_ramp_legacy() -> None:
 
 
 def _render_ramp() -> None:
-    tabs = st.tabs(["Paramètres", "Résultats", "Export"])
+    tabs = st.tabs(["Vue d’ensemble", "Paramètres", "Résultats", "Export"])
+
+    with tabs[0]:
+        _render_landscape_overview("▥  Production & Capacity Ramp")
 
     def _validate_imports_df(df: pd.DataFrame) -> tuple[list[str], pd.DataFrame]:
         errors: list[str] = []
@@ -1289,7 +1295,7 @@ def _render_ramp() -> None:
         work = work.sort_values("Year").reset_index(drop=True)
         return errors, work
 
-    with tabs[0]:
+    with tabs[1]:
         st.subheader("ABC Ramp — Paramètres")
         if st.button("Reset notebook defaults", key="ramp_reset"):
             _reset_ramp_defaults()
@@ -1871,7 +1877,7 @@ def _render_ramp() -> None:
             st.session_state["ramp_last_run_meta"] = {"elapsed_s": elapsed, "cfg": cfg.as_dict(), "priors": priors_dump}
             st.success(f"Monte Carlo terminé en {elapsed:.2f}s.")
 
-    with tabs[1]:
+    with tabs[2]:
         st.subheader("ABC Ramp — Résultats")
         results = st.session_state.get("ramp_results")
         if results is None:
@@ -2062,7 +2068,7 @@ def _render_ramp() -> None:
                     )
                     _portfolio_chart(fig, use_container_width=True)
 
-    with tabs[2]:
+    with tabs[3]:
         st.subheader("ABC Ramp — Export")
         results = st.session_state.get("ramp_results")
         if results is None:
@@ -2260,8 +2266,7 @@ def main() -> None:
         label_visibility="collapsed",
         key="portfolio_active_module",
     )
-    _render_landscape_overview(selected_module)
-    st.markdown('<div class="sr-detail-heading"><strong>Simulation controls & detailed analysis</strong><span>Configure · Run · Review · Export</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="sr-detail-heading"><strong>Interactive analysis</strong><span>Overview · Parameters · Results · Export</span></div>', unsafe_allow_html=True)
 
     if selected_module == "◈  Raw Materials & Sourcing":
         _render_supply_chain()
