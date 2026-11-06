@@ -270,3 +270,32 @@ div[role="radiogroup"] label:hover{background:#f3f0ed!important}
 [data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"]{background:#37434c!important;color:#fff!important}
 [data-testid="stTabs"] [data-baseweb="tab-highlight"],[data-testid="stTabs"] [data-baseweb="tab-border"]{display:none!important}
 [data-testid="stTabs"] [data-baseweb="tab-panel"]{padding-top:13px!important}
+
+/* Final cockpit: photo is a subtle background motif, not a header. */
+html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"]{background:#f5f4f2!important}
+[data-testid="stAppViewContainer"]{position:relative!important}
+[data-testid="stAppViewContainer"]:before{
+content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+background:linear-gradient(90deg,rgba(248,247,245,.96),rgba(248,247,245,.90)),url("https://drive.google.com/thumbnail?id=1joPV7jUfA2CVr5bBJzDsNcOXmak1adSB&sz=w1200") center 30% / cover no-repeat!important;
+opacity:.85!important
+}
+[data-testid="stMain"]{position:relative;z-index:1;background:transparent!important}
+[data-testid="stAppViewContainer"] .block-container{max-width:1550px!important;padding-top:.35rem!important;padding-bottom:.5rem!important}
+.sr-mini-brand{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 14px;background:#30383e;color:#f9f6f3;border-radius:11px;margin:0 0 8px;font-size:11px;font-weight:750;letter-spacing:.07em;border-bottom:2px solid #b27661;box-shadow:0 3px 10px #1f293312}
+.sr-mini-brand span:nth-child(2){font-size:10px;color:#d1d1cc;font-weight:600}
+.sr-mini-brand .sr-flame{color:#e8ac81}
+.sr-overview-heading{margin:6px 0 6px!important}
+.sr-overview-heading strong{font-size:14px!important}
+.sr-overview-heading span{font-size:9px!important}
+[data-testid="stMetric"]{min-height:72px!important;padding:8px 12px!important;background:#fffffff2!important;border:1px solid #e9e2db!important;border-left:3px solid #a96757!important;border-radius:11px!important}
+[data-testid="stMetricValue"]{font-size:20px!important;line-height:1.1!important}
+[data-testid="stMetricLabel"]{font-size:10px!important}
+[data-testid="stVerticalBlockBorderWrapper"]:has([data-testid="stPlotlyChart"]){background:#fffffff5!important;border:1px solid #e9e4df!important;border-radius:12px!important;padding:5px 9px 2px!important;margin:2px 0 5px!important;box-shadow:0 3px 10px #24313a0b!important}
+[data-testid="stPlotlyChart"]{min-height:0!important}
+[data-testid="stTabs"] [data-baseweb="tab-list"]{padding:3px!important;margin-bottom:2px!important}
+[data-testid="stTabs"] button[data-baseweb="tab"]{min-height:31px!important;padding:6px 13px!important}
+[data-testid="stRadio"]{margin:0!important}
+[data-testid="stRadio"] label{font-size:12px!important}
+[data-testid="stSlider"]{padding-top:0!important}
+[data-testid="stCaptionContainer"]{font-size:10px!important}
+@media(max-width:800px){.sr-mini-brand span:nth-child(2){display:none}.sr-mini-brand{font-size:10px}}
