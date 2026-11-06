@@ -2127,13 +2127,6 @@ def main() -> None:
 
     st.markdown(
         """
-        <div class="sr-brandline">
-          <span class="sr-logomark">S</span>
-          <span class="sr-wordmark">SUPPLY<span>RISK</span> <em>STUDIO</em></span>
-          <span class="sr-brand-spacer"></span>
-          <span class="sr-mode">●&nbsp; SCENARIO ANALYSIS</span>
-          <span class="sr-edition">PORTFOLIO EDITION</span>
-        </div>
         <section class="sr-hero">
           <div class="sr-hero-content">
             <span class="sr-eyebrow">MONTE CARLO / SUPPLY CHAIN INTELLIGENCE</span>
