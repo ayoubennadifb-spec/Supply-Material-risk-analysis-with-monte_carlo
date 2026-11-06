@@ -263,3 +263,10 @@ div[role="radiogroup"] label:hover{background:#f3f0ed!important}
 .sr-overview-heading{margin:10px 0 7px!important}
 .sr-detail-heading{margin:14px 0 7px!important}
 @media(max-width:850px){[data-testid="stAppViewContainer"] .block-container{padding-left:1rem!important;padding-right:1rem!important}}
+
+/* Organized dashboard tabs: overview, parameters, results, export */
+[data-testid="stTabs"] [data-baseweb="tab-list"]{display:flex!important;gap:7px!important;background:#fff!important;border:1px solid #e8e5e1!important;border-radius:13px!important;padding:6px!important;box-shadow:0 3px 13px #27323c08!important;overflow-x:auto!important}
+[data-testid="stTabs"] button[data-baseweb="tab"]{border-radius:9px!important;padding:9px 15px!important;min-height:38px!important;font-size:12px!important;font-weight:650!important;color:#687580!important;background:transparent!important}
+[data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"]{background:#37434c!important;color:#fff!important}
+[data-testid="stTabs"] [data-baseweb="tab-highlight"],[data-testid="stTabs"] [data-baseweb="tab-border"]{display:none!important}
+[data-testid="stTabs"] [data-baseweb="tab-panel"]{padding-top:13px!important}
