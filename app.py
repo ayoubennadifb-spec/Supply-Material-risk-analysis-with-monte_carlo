@@ -63,8 +63,27 @@ def _reset_ramp_defaults() -> None:
 
 
 def _ensure_state() -> None:
+    """Initialize missing session fields, including sessions from older deployments."""
+    supply_keys = (
+        "supply_cfg", "supply_seasonality", "supply_materials_df",
+        "supply_results", "supply_kpi_df", "supply_profit_per_ton_abc",
+        "supply_sourcing_grid_df",
+    )
     if "supply_cfg" not in st.session_state:
         _reset_supply_defaults()
+    else:
+        defaults = {
+            "supply_seasonality": lambda: DEFAULT_SEASONALITY.as_dict(),
+            "supply_materials_df": lambda: DEFAULT_MATERIALS_DF.copy(),
+            "supply_results": lambda: None,
+            "supply_kpi_df": lambda: None,
+            "supply_profit_per_ton_abc": lambda: 0.0,
+            "supply_sourcing_grid_df": lambda: None,
+        }
+        for key in supply_keys:
+            if key not in st.session_state:
+                st.session_state[key] = defaults[key]()
+
     if "ramp_cfg" not in st.session_state or "ramp_imports_df" not in st.session_state:
         _reset_ramp_defaults()
 
