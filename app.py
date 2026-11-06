@@ -2136,8 +2136,8 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="collapsed",
     )
-    _ensure_state()
-
+    # Render the branded hero before loading simulation state so the landing page
+    # remains visible even when a data/model initialization step is slow.
     from pathlib import Path
     css_path = Path(__file__).parent / "portfolio_theme.css"
     if css_path.exists():
@@ -2170,6 +2170,13 @@ def main() -> None:
         """,
         unsafe_allow_html=True,
     )
+
+    try:
+        _ensure_state()
+    except Exception as exc:
+        st.error("Unable to initialize simulation defaults. Please retry or inspect the deployment logs.")
+        st.exception(exc)
+        st.stop()
 
     selected_module = st.radio(
         "Simulation module",
