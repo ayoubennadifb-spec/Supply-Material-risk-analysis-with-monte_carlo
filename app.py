@@ -2119,7 +2119,7 @@ def _portfolio_chart(fig, **kwargs) -> None:
         plot_bgcolor="#ffffff",
         font=dict(family="DM Sans, Arial, sans-serif", color="#52647b", size=12),
         title_font=dict(family="DM Sans, Arial, sans-serif", color="#172b44", size=16),
-        colorway=["#0a9d8c", "#3567a8", "#f2a65a", "#8c78c4", "#e27e88"],
+        colorway=["#d62828", "#f0a202", "#30343b", "#d76b36", "#8b95a5"],
         hoverlabel=dict(bgcolor="#142d46", font_color="#ffffff"),
         legend=dict(bgcolor="rgba(255,255,255,0)", font=dict(size=11)),
     )
