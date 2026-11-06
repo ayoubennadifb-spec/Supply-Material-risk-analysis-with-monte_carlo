@@ -2185,7 +2185,7 @@ def _render_landscape_overview(module: str) -> None:
         cfg=st.session_state["ramp_cfg"]
         months=max(1,min(int(cfg["months"]),240))
         capacity=max(0.,float(cfg["Q_max"]))
-        target=max(0.,float(cfg["util_target"]))
+        target=max(0.,float(cfg["u_target"]))
         k1,k2,k3,k4=st.columns(4)
         k1.metric("Horizon",f"{months} mo")
         k2.metric("Rated capacity",f"{capacity:,.0f} t/y")
@@ -2195,8 +2195,8 @@ def _render_landscape_overview(module: str) -> None:
         with control_a:
             cfg["months"]=st.slider("Planning horizon (months)",1,240,months,key="overview_ramp_horizon")
         with control_b:
-            cfg["util_target"]=st.slider("Target utilization",0.,1.,min(1.,target),.05,key="overview_ramp_util")
-        months=int(cfg["months"]);target=float(cfg["util_target"])
+            cfg["u_target"]=st.slider("Target utilization",0.,1.,min(1.,target),.05,key="overview_ramp_util")
+        months=int(cfg["months"]);target=float(cfg["u_target"])
         x=np.arange(1,months+1)
         t0=float(cfg["t0_cap"]);k=float(cfg["k_cap"])
         ramp=capacity*target/(1.+np.exp(np.clip(-k*(x-t0),-700,700)))
