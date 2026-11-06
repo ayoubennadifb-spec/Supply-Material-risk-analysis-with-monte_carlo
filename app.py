@@ -2129,6 +2129,72 @@ def _portfolio_chart(fig, **kwargs) -> None:
         st.plotly_chart(fig, **kwargs)
 
 
+
+def _render_landscape_overview(module: str) -> None:
+    """Interactive, assumption-based overview; not a Monte Carlo result."""
+    st.markdown('<div class="sr-overview-heading"><strong>Scenario overview</strong><span>LIVE ASSUMPTIONS · NOT SIMULATION RESULTS</span></div>', unsafe_allow_html=True)
+    if "Raw Materials" in module:
+        cfg = st.session_state["supply_cfg"]
+        df = st.session_state["supply_materials_df"].copy()
+        names = df["name"].astype(str).tolist()
+        shares = pd.to_numeric(df["x"], errors="coerce").fillna(0).clip(lower=0)
+        sources = df["source"].astype(str).str.lower().tolist()
+        horizon = int(cfg["horizon_months"])
+        a, b, c, d = st.columns(4)
+        a.metric("Materials tracked", f"{len(df)}")
+        b.metric("Imported materials", f"{sum(v.startswith('imp') for v in sources)}")
+        c.metric("Planning horizon", f"{horizon} mo")
+        d.metric("Monte Carlo iterations", f"{int(cfg['n_iter']):,}")
+        left, right = st.columns(2, gap="medium")
+        with left:
+            fig = go.Figure(go.Bar(x=names, y=shares * 100, marker_color="#b66d5d",
+                                   hovertemplate="%{x}: %{y:.1f}%<extra></extra>"))
+            fig.update_layout(title="Raw material composition", yaxis_title="Share (%)",
+                              height=310, margin=dict(l=15,r=15,t=48,b=28))
+            _portfolio_chart(fig, use_container_width=True, config={"displayModeBar":False})
+        with right:
+            local = pd.to_numeric(df["lt_mode_local"], errors="coerce").fillna(0)
+            imported = pd.to_numeric(df["lt_mode_import"], errors="coerce").fillna(0)
+            fig = go.Figure()
+            fig.add_bar(name="Local", x=names, y=local, marker_color="#c0a48e")
+            fig.add_bar(name="Imported", x=names, y=imported, marker_color="#576779")
+            fig.update_layout(title="Typical sourcing lead times", barmode="group",
+                              yaxis_title="Months", height=310,
+                              margin=dict(l=15,r=15,t=48,b=28))
+            _portfolio_chart(fig, use_container_width=True, config={"displayModeBar":False})
+    else:
+        cfg = st.session_state["ramp_cfg"]
+        months = max(1, min(int(cfg["months"]), 240))
+        capacity = max(0.0, float(cfg["Q_max"]))
+        target = max(0.0, float(cfg["util_target"]))
+        a,b,c,d = st.columns(4)
+        a.metric("Horizon", f"{months} mo")
+        b.metric("Rated capacity", f"{capacity:,.0f} t/y")
+        c.metric("Target utilization", f"{target:.0%}")
+        d.metric("Target throughput", f"{capacity*target:,.0f} t/y")
+        x = np.arange(1, months+1)
+        t0 = float(cfg["t0_cap"])
+        k = float(cfg["k_cap"])
+        ramp = capacity * target / (1.0 + np.exp(np.clip(-k*(x-t0), -700, 700)))
+        left,right = st.columns(2,gap="medium")
+        with left:
+            fig = go.Figure(go.Scatter(x=x,y=ramp,mode="lines",line=dict(color="#b66d5d",width=3),
+                                       fill="tozeroy",fillcolor="rgba(182,109,93,.09)"))
+            fig.update_layout(title="Capacity ramp assumption",xaxis_title="Month",
+                              yaxis_title="Tonnes/year",height=310,margin=dict(l=15,r=15,t=48,b=28))
+            _portfolio_chart(fig,use_container_width=True,config={"displayModeBar":False})
+        with right:
+            imp = st.session_state["ramp_imports_df"].copy()
+            if not imp.empty and {"Year","Imports_tons"}.issubset(imp.columns):
+                fig = go.Figure(go.Bar(x=imp["Year"].astype(str),y=imp["Imports_tons"],
+                                       marker_color="#576779"))
+                fig.update_layout(title="Imported volume assumptions",yaxis_title="Tonnes/year",
+                                  height=310,margin=dict(l=15,r=15,t=48,b=28))
+                _portfolio_chart(fig,use_container_width=True,config={"displayModeBar":False})
+            else:
+                st.info("Import assumptions can be configured below.")
+
+
 def main() -> None:
     st.set_page_config(
         page_title="ABC Powder Pilot Plant | Monte Carlo",
@@ -2182,6 +2248,9 @@ def main() -> None:
         label_visibility="collapsed",
         key="portfolio_active_module",
     )
+    _render_landscape_overview(selected_module)
+    st.markdown('<div class="sr-detail-heading"><strong>Simulation controls & detailed analysis</strong><span>Configure · Run · Review · Export</span></div>', unsafe_allow_html=True)
+
     if selected_module == "◈  Raw Materials & Sourcing":
         _render_supply_chain()
     else:
