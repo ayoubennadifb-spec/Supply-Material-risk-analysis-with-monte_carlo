@@ -2148,8 +2148,8 @@ def main() -> None:
         <section class="sr-hero sr-fire-hero">
           <div class="sr-ember-field" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="sr-hero-content">
             <span class="sr-eyebrow">ABC DRY POWDER / PILOT PRODUCTION PLANT</span>
-            <h1>Secure the materials.<br><span>Protect the production plan.</span></h1>
-            <p>Monte Carlo risk analysis for an ABC dry-powder fire-extinguisher pilot plant. Evaluate raw-material availability, local versus imported sourcing, and production ramp-up under uncertainty.</p>
+            <h1>Smarter supply decisions<br><span>for ABC powder production.</span></h1>
+            <p>Explore material availability, sourcing risk and production capacity through Monte Carlo simulation for an ABC powder pilot plant.</p>
             <div class="sr-hero-tags">
               <span>01 &nbsp; Raw materials</span>
               <span>02 &nbsp; Supply resilience</span>
@@ -2158,12 +2158,6 @@ def main() -> None:
           </div>
           <div class="sr-hero-photo" aria-label="ABC dry powder fire extinguishers">
             <img src="https://drive.google.com/thumbnail?id=1joPV7jUfA2CVr5bBJzDsNcOXmak1adSB&amp;sz=w1200" alt="ABC dry powder extinguisher against an industrial fire-themed background" loading="eager" />
-          </div>
-          <div class="sr-hero-graphic" aria-hidden="true">
-            <div class="sr-orbit sr-orbit-one"></div>
-            <div class="sr-orbit sr-orbit-two"></div>
-            <div class="sr-orbit sr-orbit-three"></div>
-            <div class="sr-orbit-core">ABC<span>POWDER</span></div>
           </div>
         </section>
         <div class="sr-section-intro">
