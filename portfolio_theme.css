@@ -232,3 +232,19 @@ div[role="radiogroup"] label:hover{background:#f3f0ed!important}
 [data-testid="stPlotlyChart"]{background:#fff!important}
 @media(max-width:850px){.sr-dashboard-tiles{grid-template-columns:1fr 1fr}.sr-dashboard-photo{width:140px;flex-basis:140px}}
 @media(max-width:600px){.sr-dashboard-top{padding:18px;min-height:0}.sr-dashboard-photo{display:none}.sr-dashboard-tiles{grid-template-columns:1fr;gap:9px}.sr-dashboard-tile{min-height:68px;padding:12px 14px}.sr-dashboard-section{margin-top:6px!important}}
+
+/* Landscape-first interactive simulation dashboard */
+.sr-dashboard-top{min-height:95px!important;padding:14px 22px!important;margin-bottom:13px!important}
+.sr-dashboard-photo{height:65px!important;width:126px!important;flex-basis:126px!important}
+.sr-dashboard-heading h1{font-size:26px!important;margin-bottom:4px!important}
+.sr-dashboard-heading .sr-eyebrow{margin-bottom:5px!important}
+.sr-section-intro.sr-dashboard-section{margin-bottom:8px!important}
+.sr-overview-heading,.sr-detail-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:17px 0 10px}
+.sr-overview-heading strong,.sr-detail-heading strong{font-family:Manrope,sans-serif;color:#2b343c;font-size:16px;letter-spacing:-.025em}
+.sr-overview-heading span,.sr-detail-heading span{font-size:10px;font-weight:750;letter-spacing:.07em;color:#a27665}
+[data-testid="stMetric"]{padding:15px 18px!important;border-radius:13px!important;border:1px solid #e9e4df!important;border-left:3px solid #b77a69!important;min-height:105px}
+[data-testid="stMetricValue"]{font-size:25px!important}
+[data-testid="stMetricLabel"]{font-size:11px!important}
+[data-testid="stVerticalBlockBorderWrapper"]:has([data-testid="stPlotlyChart"]){padding:12px 14px 8px!important;margin:5px 0 13px!important;border-radius:15px!important}
+[data-testid="stPlotlyChart"]{min-width:0!important}
+@media(max-width:640px){.sr-overview-heading,.sr-detail-heading{align-items:flex-start;flex-direction:column;gap:3px}.sr-dashboard-heading h1{font-size:23px!important}}
