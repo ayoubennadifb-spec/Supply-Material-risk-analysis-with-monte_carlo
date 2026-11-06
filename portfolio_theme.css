@@ -299,3 +299,39 @@ opacity:.85!important
 [data-testid="stSlider"]{padding-top:0!important}
 [data-testid="stCaptionContainer"]{font-size:10px!important}
 @media(max-width:800px){.sr-mini-brand span:nth-child(2){display:none}.sr-mini-brand{font-size:10px}}
+
+/* More prominent ABC Powder identity bar, with rich fire-engine red. */
+.sr-mini-brand{
+  min-height:76px!important;
+  padding:17px 28px!important;
+  background:linear-gradient(112deg,#8f2027 0%,#b32d31 53%,#c94a39 100%)!important;
+  border:1px solid #ad3c3c!important;
+  border-bottom:3px solid #e5a26d!important;
+  border-radius:16px!important;
+  box-shadow:0 9px 24px rgba(130,35,36,.16)!important;
+  margin:0 0 14px!important;
+  color:#fff!important;
+  font-family:Manrope,Arial,sans-serif!important;
+}
+.sr-mini-brand span:first-child{
+  font-size:19px!important;
+  font-weight:850!important;
+  letter-spacing:.065em!important;
+  color:#fff!important;
+}
+.sr-mini-brand span:nth-child(2){
+  font-size:12px!important;
+  font-weight:700!important;
+  color:#ffe4d7!important;
+  letter-spacing:.11em!important;
+}
+.sr-mini-brand .sr-flame{
+  font-size:12px!important;
+  font-weight:800!important;
+  color:#ffe2ad!important;
+}
+@media(max-width:800px){
+  .sr-mini-brand{min-height:65px!important;padding:14px 17px!important}
+  .sr-mini-brand span:first-child{font-size:16px!important}
+  .sr-mini-brand .sr-flame{font-size:10px!important}
+}
