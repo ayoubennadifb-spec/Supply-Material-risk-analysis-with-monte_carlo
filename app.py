@@ -2112,17 +2112,64 @@ def _render_ramp() -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Monte Carlo ABC", layout="wide")
+    st.set_page_config(
+        page_title="Supply Risk Studio | Monte Carlo",
+        page_icon="📊",
+        layout="wide",
+        initial_sidebar_state="collapsed",
+    )
     _ensure_state()
 
-    st.title("Monte Carlo — ABC")
-    st.caption("Interface pour paramétrer et lancer plusieurs simulations Monte Carlo.")
+    from pathlib import Path
+    css_path = Path(__file__).parent / "portfolio_theme.css"
+    if css_path.exists():
+        st.markdown("<style>" + css_path.read_text(encoding="utf-8") + "</style>", unsafe_allow_html=True)
 
-    sim_tabs = st.tabs(["Supply Chain (Stocks)", "ABC Ramp (Marché/Capacité)"])
+    st.markdown(
+        """
+        <div class="sr-brandline">
+          <span class="sr-logomark">S</span>
+          <span class="sr-wordmark">SUPPLY<span>RISK</span> <em>STUDIO</em></span>
+          <span class="sr-brand-spacer"></span>
+          <span class="sr-mode">●&nbsp; SCENARIO ANALYSIS</span>
+          <span class="sr-edition">PORTFOLIO EDITION</span>
+        </div>
+        <section class="sr-hero">
+          <div class="sr-hero-content">
+            <span class="sr-eyebrow">MONTE CARLO / SUPPLY CHAIN INTELLIGENCE</span>
+            <h1>Turn uncertainty into<br><span>better supply decisions.</span></h1>
+            <p>Quantify material shortages, compare local versus imported sourcing, and stress-test production capacity with probabilistic simulations.</p>
+            <div class="sr-hero-tags">
+              <span>01 &nbsp; Material risk</span>
+              <span>02 &nbsp; Sourcing strategy</span>
+              <span>03 &nbsp; Market &amp; capacity</span>
+            </div>
+          </div>
+          <div class="sr-hero-graphic" aria-hidden="true">
+            <div class="sr-orbit sr-orbit-one"></div>
+            <div class="sr-orbit sr-orbit-two"></div>
+            <div class="sr-orbit sr-orbit-three"></div>
+            <div class="sr-orbit-core">MC<span>∞</span></div>
+          </div>
+        </section>
+        <div class="sr-section-intro">
+          <div><span class="sr-kicker">YOUR WORKSPACE</span><h2>Simulation workbench</h2><p>Configure assumptions, run simulations, and explore uncertainty bands.</p></div>
+          <span class="sr-ready"><span>●</span> Models ready</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    sim_tabs = st.tabs(["◈  Material & Sourcing Risk", "▥  Market & Capacity Ramp"])
     with sim_tabs[0]:
         _render_supply_chain()
     with sim_tabs[1]:
         _render_ramp()
+
+    st.markdown(
+        '<div class="sr-footer"><span>SUPPLYRISK STUDIO</span><span>Monte Carlo decision intelligence · Built with Python & Streamlit</span></div>',
+        unsafe_allow_html=True,
+    )
 
 
 if __name__ == "__main__":
