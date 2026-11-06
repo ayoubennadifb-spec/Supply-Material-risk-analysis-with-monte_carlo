@@ -336,7 +336,7 @@ def _render_sourcing_grid(grid_df: pd.DataFrame) -> None:
     if valid.empty:
         st.error("Aucune configuration valide (coûts manquants). Renseigne les coûts local/import puis relance.")
         if not invalid.empty:
-            st.dataframe(invalid, width='stretch', hide_index=True)
+            st.dataframe(invalid, use_container_width=True, hide_index=True)
         return
 
     if not invalid.empty:
@@ -365,11 +365,11 @@ def _render_sourcing_grid(grid_df: pd.DataFrame) -> None:
         legend_title_text="Composante",
     )
     fig_cost.update_xaxes(tickangle=35, automargin=True)
-    _portfolio_chart(fig_cost, width='stretch')
-    st.dataframe(valid, width='stretch', hide_index=True)
+    _portfolio_chart(fig_cost, use_container_width=True)
+    st.dataframe(valid, use_container_width=True, hide_index=True)
     if not invalid.empty:
         with st.expander("Configurations ignorées (coûts manquants)"):
-            st.dataframe(invalid, width='stretch', hide_index=True)
+            st.dataframe(invalid, use_container_width=True, hide_index=True)
 
 
 def _seasonality_inputs(key_prefix: str, seasonality_state: dict) -> Seasonality:
@@ -568,7 +568,7 @@ def _render_supply_chain() -> None:
         )
         fig_season = px.bar(season_df, x="Saison", y="Part", range_y=[0, 1])
         fig_season.update_layout(height=250, margin=dict(l=10, r=10, t=30, b=10))
-        _portfolio_chart(fig_season, width='stretch')
+        _portfolio_chart(fig_season, use_container_width=True)
 
         st.markdown("### Preview plan de production")
         preview_annual = 0.5 * (
@@ -584,7 +584,7 @@ def _render_supply_chain() -> None:
         preview_df = pd.DataFrame({"Mois": np.arange(1, len(plan_prod_preview) + 1), "Production": plan_prod_preview})
         fig_plan = px.line(preview_df, x="Mois", y="Production")
         fig_plan.update_layout(height=250, margin=dict(l=10, r=10, t=30, b=10))
-        _portfolio_chart(fig_plan, width='stretch')
+        _portfolio_chart(fig_plan, use_container_width=True)
         st.caption(f"Preview basé sur une production annuelle constante = {preview_annual:.0f} t/an.")
 
         st.markdown("### Matières (MAP hors simulation)")
@@ -592,7 +592,7 @@ def _render_supply_chain() -> None:
         edited_df = st.data_editor(
             st.session_state["supply_materials_df"],
             num_rows="dynamic",
-            width='stretch',
+            use_container_width=True,
             key="supply_materials_editor",
             column_config={
                 "name": st.column_config.TextColumn("Nom", required=True),
@@ -751,7 +751,7 @@ def _render_supply_chain() -> None:
             )
             fig_plan_run = px.line(plan_df, x="Mois", y="Production planifiée")
             fig_plan_run.update_layout(height=280, margin=dict(l=10, r=10, t=30, b=10))
-            _portfolio_chart(fig_plan_run, width='stretch')
+            _portfolio_chart(fig_plan_run, use_container_width=True)
             if results.example_annuals.size:
                 years_txt = " | ".join([f"Année {i+1}={a:.0f} t/an" for i, a in enumerate(results.example_annuals)])
                 st.caption(f"Exemple (tirage annuel): {years_txt}")
@@ -771,10 +771,10 @@ def _render_supply_chain() -> None:
                         height=260,
                         margin=dict(l=10, r=10, t=40, b=10),
                     )
-                    _portfolio_chart(fig_ann, width='stretch')
+                    _portfolio_chart(fig_ann, use_container_width=True)
 
             st.markdown("### KPI")
-            st.dataframe(kpi_df, width='stretch', hide_index=True)
+            st.dataframe(kpi_df, use_container_width=True, hide_index=True)
 
             st.markdown("### Courbes par matière")
             mat_names = kpi_df["name"].tolist()
@@ -793,7 +793,7 @@ def _render_supply_chain() -> None:
                         height=320,
                         margin=dict(l=10, r=10, t=40, b=10),
                     )
-                    _portfolio_chart(fig1, width='stretch')
+                    _portfolio_chart(fig1, use_container_width=True)
 
                     paths = results.stock_paths[name]
                     p5 = np.percentile(paths, 5, axis=0)
@@ -831,7 +831,7 @@ def _render_supply_chain() -> None:
                         height=320,
                         margin=dict(l=10, r=10, t=40, b=10),
                     )
-                    _portfolio_chart(fig2, width='stretch')
+                    _portfolio_chart(fig2, use_container_width=True)
 
                     mins = results.stock_mins[name]
                     fig3 = px.histogram(pd.DataFrame({"Stock minimum": mins}), x="Stock minimum", nbins=40)
@@ -841,7 +841,7 @@ def _render_supply_chain() -> None:
                         height=320,
                         margin=dict(l=10, r=10, t=40, b=10),
                     )
-                    _portfolio_chart(fig3, width='stretch')
+                    _portfolio_chart(fig3, use_container_width=True)
 
     with tabs[2]:
         st.subheader("Supply Chain — Export")
@@ -1153,7 +1153,7 @@ def _render_ramp_legacy() -> None:
             cap_df = results.cap_df
             fig_cap = px.line(cap_df, x="Month", y="Capacity_tpy", title="Capacité effective (t/an)")
             fig_cap.update_layout(height=280, margin=dict(l=10, r=10, t=40, b=10))
-            _portfolio_chart(fig_cap, width='stretch')
+            _portfolio_chart(fig_cap, use_container_width=True)
 
             df = results.summary_df
             fig_main = go.Figure()
@@ -1169,7 +1169,7 @@ def _render_ramp_legacy() -> None:
                 height=360,
                 margin=dict(l=10, r=10, t=50, b=10),
             )
-            _portfolio_chart(fig_main, width='stretch')
+            _portfolio_chart(fig_main, use_container_width=True)
 
             thresholds = st.session_state.get("ramp_thresholds", {"threshold_1": 11000.0, "threshold_2": 15000.0})
             m1 = first_cross(df["Sales_P50_tpy"].to_numpy(), float(thresholds["threshold_1"]))
@@ -1183,7 +1183,7 @@ def _render_ramp_legacy() -> None:
                     }
                 ),
                 hide_index=True,
-                width='stretch',
+                use_container_width=True,
             )
 
             st.markdown("### Courbes quantiles (annualisé)")
@@ -1209,7 +1209,7 @@ def _render_ramp_legacy() -> None:
                     height=320,
                     margin=dict(l=10, r=10, t=50, b=10),
                 )
-                _portfolio_chart(fig, width='stretch')
+                _portfolio_chart(fig, use_container_width=True)
 
     with tabs[2]:
         st.subheader("ABC Ramp — Export")
@@ -1361,7 +1361,7 @@ def _render_ramp() -> None:
         imports_df_edited = st.data_editor(
             st.session_state["ramp_imports_df"],
             num_rows="dynamic",
-            width='stretch',
+            use_container_width=True,
             key="ramp_imports_editor",
             column_config={
                 "Year": st.column_config.NumberColumn("Année", min_value=1900, step=1),
@@ -1855,7 +1855,7 @@ def _render_ramp() -> None:
                 prior_df = pd.DataFrame(
                     [{"param": k, **priors_dump[k]} for k in sorted(priors_dump.keys())]
                 )
-                st.dataframe(prior_df, hide_index=True, width='stretch')
+                st.dataframe(prior_df, hide_index=True, use_container_width=True)
                 st.caption("Interprétation: pour chaque trajectoire Monte Carlo, on tire un jeu de paramètres dans ces bornes.")
 
         if st.button("Run simulation", type="primary", disabled=not can_run, key="ramp_run"):
@@ -1893,9 +1893,9 @@ def _render_ramp() -> None:
                 imp_plot_df = results.imports.reset_index().rename(columns={"Year": "Année"})
                 fig_imp = px.line(imp_plot_df, x="Année", y="Imports_tons", markers=True, title="Imports historiques (t/an)")
                 fig_imp.update_layout(height=280, margin=dict(l=10, r=10, t=40, b=10))
-                _portfolio_chart(fig_imp, width='stretch')
+                _portfolio_chart(fig_imp, use_container_width=True)
             with c2:
-                st.dataframe(results.summary_market, hide_index=True, width='stretch')
+                st.dataframe(results.summary_market, hide_index=True, use_container_width=True)
                 st.caption(
                     f"D0={results.stats.D0_tpy:.0f} t/an | σ_y={results.stats.sigma_y:.3f} | σ_m={results.stats.sigma_m:.3f}"
                 )
@@ -1918,7 +1918,7 @@ def _render_ramp() -> None:
             proj_df = pd.DataFrame({"Month": t, **{f"Marché — {s}": market_paths[s] for s in order}})
             fig_proj = px.line(proj_df, x="Month", y=[c for c in proj_df.columns if c != "Month"])
             fig_proj.update_layout(height=320, margin=dict(l=10, r=10, t=40, b=10))
-            _portfolio_chart(fig_proj, width='stretch')
+            _portfolio_chart(fig_proj, use_container_width=True)
 
             st.markdown("### Courbes (paramètres)")
             c1, c2, c3 = st.columns(3)
@@ -1930,11 +1930,11 @@ def _render_ramp() -> None:
                     yaxis_range=[0, 1],
                     title="Part de marché s(t)",
                 )
-                _portfolio_chart(fig_s, width='stretch')
+                _portfolio_chart(fig_s, use_container_width=True)
             with c2:
                 fig_q = px.line(pd.DataFrame({"Month": t, "Q(t)": results.Q_t}), x="Month", y="Q(t)")
                 fig_q.update_layout(height=250, margin=dict(l=10, r=10, t=40, b=10), title="Capacité Q(t) (t/an)")
-                _portfolio_chart(fig_q, width='stretch')
+                _portfolio_chart(fig_q, use_container_width=True)
             with c3:
                 lam_t = float(results.cfg.lam0) + (float(results.cfg.lam_max) - float(results.cfg.lam0)) * logistic(
                     t, float(results.cfg.k_lam), float(results.cfg.t0_lam)
@@ -1945,7 +1945,7 @@ def _render_ramp() -> None:
                     margin=dict(l=10, r=10, t=40, b=10),
                     title="Acquisition clients λ(t) (clients/mois)",
                 )
-                _portfolio_chart(fig_l, width='stretch')
+                _portfolio_chart(fig_l, use_container_width=True)
 
             Dm_sel = market_paths[str(results.cfg.scenario)]
             Daddr_sel = results.s_t * Dm_sel
@@ -1956,7 +1956,7 @@ def _render_ramp() -> None:
                 margin=dict(l=10, r=10, t=40, b=10),
                 title=f"Marché vs adressable — scénario '{results.cfg.scenario}'",
             )
-            _portfolio_chart(fig_ma, width='stretch')
+            _portfolio_chart(fig_ma, use_container_width=True)
 
             st.markdown("### Trajectoire exemple (1 simulation)")
             demo_df = pd.DataFrame(
@@ -1971,7 +1971,7 @@ def _render_ramp() -> None:
             )
             fig_demo = px.line(demo_df, x="Month", y=["Capacité", "Marché", "Adressable", "Demande clients", "Ventes"])
             fig_demo.update_layout(height=360, margin=dict(l=10, r=10, t=40, b=10))
-            _portfolio_chart(fig_demo, width='stretch')
+            _portfolio_chart(fig_demo, use_container_width=True)
 
             st.markdown("### Monte Carlo — P50 + bande ventes P10–P90")
             df = results.summary_df
@@ -2010,10 +2010,10 @@ def _render_ramp() -> None:
                 height=420,
                 margin=dict(l=10, r=10, t=40, b=10),
             )
-            _portfolio_chart(fig_main, width='stretch')
+            _portfolio_chart(fig_main, use_container_width=True)
 
             st.markdown("### Atteinte des seuils (Ventes P50)")
-            st.dataframe(results.crossings_df, hide_index=True, width='stretch')
+            st.dataframe(results.crossings_df, hide_index=True, use_container_width=True)
 
             with st.expander("Courbes quantiles (P10/P50/P90/Mean) — toutes séries", expanded=False):
                 labels = {
@@ -2058,7 +2058,7 @@ def _render_ramp() -> None:
                         height=320,
                         margin=dict(l=10, r=10, t=50, b=10),
                     )
-                    _portfolio_chart(fig, width='stretch')
+                    _portfolio_chart(fig, use_container_width=True)
 
     with tabs[2]:
         st.subheader("ABC Ramp — Export")
