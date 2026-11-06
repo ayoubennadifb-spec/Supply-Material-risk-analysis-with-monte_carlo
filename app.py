@@ -2235,7 +2235,7 @@ def main() -> None:
         st.markdown("<style>" + css_path.read_text(encoding="utf-8") + "</style>", unsafe_allow_html=True)
 
     st.markdown(
-        '<div class="sr-mini-brand"><span>🧯 &nbsp; ABC POWDER</span><span>SUPPLY RISK · MONTE CARLO STUDIO</span><span class="sr-flame">◆ PILOT PLANT</span></div>',
+        '<div class="sr-mini-brand"><span>🧯 &nbsp; ABC POWDER</span><span>SUPPLY RISK · MONTE CARLO SIMULATION</span><span class="sr-flame">◆ PILOT PLANT</span></div>',
         unsafe_allow_html=True,
     )
 
