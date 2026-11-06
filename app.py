@@ -63,8 +63,27 @@ def _reset_ramp_defaults() -> None:
 
 
 def _ensure_state() -> None:
+    """Initialize missing session fields, including sessions from older deployments."""
+    supply_keys = (
+        "supply_cfg", "supply_seasonality", "supply_materials_df",
+        "supply_results", "supply_kpi_df", "supply_profit_per_ton_abc",
+        "supply_sourcing_grid_df",
+    )
     if "supply_cfg" not in st.session_state:
         _reset_supply_defaults()
+    else:
+        defaults = {
+            "supply_seasonality": lambda: DEFAULT_SEASONALITY.as_dict(),
+            "supply_materials_df": lambda: DEFAULT_MATERIALS_DF.copy(),
+            "supply_results": lambda: None,
+            "supply_kpi_df": lambda: None,
+            "supply_profit_per_ton_abc": lambda: 0.0,
+            "supply_sourcing_grid_df": lambda: None,
+        }
+        for key in supply_keys:
+            if key not in st.session_state:
+                st.session_state[key] = defaults[key]()
+
     if "ramp_cfg" not in st.session_state or "ramp_imports_df" not in st.session_state:
         _reset_ramp_defaults()
 
@@ -365,7 +384,7 @@ def _render_sourcing_grid(grid_df: pd.DataFrame) -> None:
         legend_title_text="Composante",
     )
     fig_cost.update_xaxes(tickangle=35, automargin=True)
-    st.plotly_chart(fig_cost, use_container_width=True)
+    _portfolio_chart(fig_cost, use_container_width=True)
     st.dataframe(valid, use_container_width=True, hide_index=True)
     if not invalid.empty:
         with st.expander("Configurations ignorées (coûts manquants)"):
@@ -421,9 +440,12 @@ def _seasonality_inputs(key_prefix: str, seasonality_state: dict) -> Seasonality
 
 
 def _render_supply_chain() -> None:
-    tabs = st.tabs(["Paramètres", "Résultats", "Export"])
+    tabs = st.tabs(["Vue d’ensemble", "Paramètres", "Résultats", "Export"])
 
     with tabs[0]:
+        _render_landscape_overview("◈  Raw Materials & Sourcing")
+
+    with tabs[1]:
         st.subheader("Supply Chain — Paramètres")
 
         if st.button("Reset notebook defaults", key="supply_reset"):
@@ -566,11 +588,12 @@ def _render_supply_chain() -> None:
                 "Part": [seasonality.hiver, seasonality.printemps, seasonality.ete, seasonality.automne],
             }
         )
+        chart_left, chart_right = st.columns(2, gap="medium")
         fig_season = px.bar(season_df, x="Saison", y="Part", range_y=[0, 1])
         fig_season.update_layout(height=250, margin=dict(l=10, r=10, t=30, b=10))
-        st.plotly_chart(fig_season, use_container_width=True)
+        with chart_left:
+            _portfolio_chart(fig_season, use_container_width=True)
 
-        st.markdown("### Preview plan de production")
         preview_annual = 0.5 * (
             float(st.session_state["supply_cfg"]["annual_min"]) + float(st.session_state["supply_cfg"]["annual_max"])
         )
@@ -584,7 +607,8 @@ def _render_supply_chain() -> None:
         preview_df = pd.DataFrame({"Mois": np.arange(1, len(plan_prod_preview) + 1), "Production": plan_prod_preview})
         fig_plan = px.line(preview_df, x="Mois", y="Production")
         fig_plan.update_layout(height=250, margin=dict(l=10, r=10, t=30, b=10))
-        st.plotly_chart(fig_plan, use_container_width=True)
+        with chart_right:
+            _portfolio_chart(fig_plan, use_container_width=True)
         st.caption(f"Preview basé sur une production annuelle constante = {preview_annual:.0f} t/an.")
 
         st.markdown("### Matières (MAP hors simulation)")
@@ -717,7 +741,7 @@ def _render_supply_chain() -> None:
             }
             st.success(f"Monte Carlo terminé en {elapsed:.2f}s.")
 
-    with tabs[1]:
+    with tabs[2]:
         st.subheader("Supply Chain — Résultats")
         results = st.session_state.get("supply_results")
         kpi_df = st.session_state.get("supply_kpi_df")
@@ -751,7 +775,7 @@ def _render_supply_chain() -> None:
             )
             fig_plan_run = px.line(plan_df, x="Mois", y="Production planifiée")
             fig_plan_run.update_layout(height=280, margin=dict(l=10, r=10, t=30, b=10))
-            st.plotly_chart(fig_plan_run, use_container_width=True)
+            _portfolio_chart(fig_plan_run, use_container_width=True)
             if results.example_annuals.size:
                 years_txt = " | ".join([f"Année {i+1}={a:.0f} t/an" for i, a in enumerate(results.example_annuals)])
                 st.caption(f"Exemple (tirage annuel): {years_txt}")
@@ -771,7 +795,7 @@ def _render_supply_chain() -> None:
                         height=260,
                         margin=dict(l=10, r=10, t=40, b=10),
                     )
-                    st.plotly_chart(fig_ann, use_container_width=True)
+                    _portfolio_chart(fig_ann, use_container_width=True)
 
             st.markdown("### KPI")
             st.dataframe(kpi_df, use_container_width=True, hide_index=True)
@@ -793,7 +817,7 @@ def _render_supply_chain() -> None:
                         height=320,
                         margin=dict(l=10, r=10, t=40, b=10),
                     )
-                    st.plotly_chart(fig1, use_container_width=True)
+                    _portfolio_chart(fig1, use_container_width=True)
 
                     paths = results.stock_paths[name]
                     p5 = np.percentile(paths, 5, axis=0)
@@ -831,7 +855,7 @@ def _render_supply_chain() -> None:
                         height=320,
                         margin=dict(l=10, r=10, t=40, b=10),
                     )
-                    st.plotly_chart(fig2, use_container_width=True)
+                    _portfolio_chart(fig2, use_container_width=True)
 
                     mins = results.stock_mins[name]
                     fig3 = px.histogram(pd.DataFrame({"Stock minimum": mins}), x="Stock minimum", nbins=40)
@@ -841,9 +865,9 @@ def _render_supply_chain() -> None:
                         height=320,
                         margin=dict(l=10, r=10, t=40, b=10),
                     )
-                    st.plotly_chart(fig3, use_container_width=True)
+                    _portfolio_chart(fig3, use_container_width=True)
 
-    with tabs[2]:
+    with tabs[3]:
         st.subheader("Supply Chain — Export")
         results = st.session_state.get("supply_results")
         kpi_df = st.session_state.get("supply_kpi_df")
@@ -1153,7 +1177,7 @@ def _render_ramp_legacy() -> None:
             cap_df = results.cap_df
             fig_cap = px.line(cap_df, x="Month", y="Capacity_tpy", title="Capacité effective (t/an)")
             fig_cap.update_layout(height=280, margin=dict(l=10, r=10, t=40, b=10))
-            st.plotly_chart(fig_cap, use_container_width=True)
+            _portfolio_chart(fig_cap, use_container_width=True)
 
             df = results.summary_df
             fig_main = go.Figure()
@@ -1169,7 +1193,7 @@ def _render_ramp_legacy() -> None:
                 height=360,
                 margin=dict(l=10, r=10, t=50, b=10),
             )
-            st.plotly_chart(fig_main, use_container_width=True)
+            _portfolio_chart(fig_main, use_container_width=True)
 
             thresholds = st.session_state.get("ramp_thresholds", {"threshold_1": 11000.0, "threshold_2": 15000.0})
             m1 = first_cross(df["Sales_P50_tpy"].to_numpy(), float(thresholds["threshold_1"]))
@@ -1209,7 +1233,7 @@ def _render_ramp_legacy() -> None:
                     height=320,
                     margin=dict(l=10, r=10, t=50, b=10),
                 )
-                st.plotly_chart(fig, use_container_width=True)
+                _portfolio_chart(fig, use_container_width=True)
 
     with tabs[2]:
         st.subheader("ABC Ramp — Export")
@@ -1249,7 +1273,10 @@ def _render_ramp_legacy() -> None:
 
 
 def _render_ramp() -> None:
-    tabs = st.tabs(["Paramètres", "Résultats", "Export"])
+    tabs = st.tabs(["Vue d’ensemble", "Paramètres", "Résultats", "Export"])
+
+    with tabs[0]:
+        _render_landscape_overview("▥  Production & Capacity Ramp")
 
     def _validate_imports_df(df: pd.DataFrame) -> tuple[list[str], pd.DataFrame]:
         errors: list[str] = []
@@ -1287,7 +1314,7 @@ def _render_ramp() -> None:
         work = work.sort_values("Year").reset_index(drop=True)
         return errors, work
 
-    with tabs[0]:
+    with tabs[1]:
         st.subheader("ABC Ramp — Paramètres")
         if st.button("Reset notebook defaults", key="ramp_reset"):
             _reset_ramp_defaults()
@@ -1869,7 +1896,7 @@ def _render_ramp() -> None:
             st.session_state["ramp_last_run_meta"] = {"elapsed_s": elapsed, "cfg": cfg.as_dict(), "priors": priors_dump}
             st.success(f"Monte Carlo terminé en {elapsed:.2f}s.")
 
-    with tabs[1]:
+    with tabs[2]:
         st.subheader("ABC Ramp — Résultats")
         results = st.session_state.get("ramp_results")
         if results is None:
@@ -1893,7 +1920,7 @@ def _render_ramp() -> None:
                 imp_plot_df = results.imports.reset_index().rename(columns={"Year": "Année"})
                 fig_imp = px.line(imp_plot_df, x="Année", y="Imports_tons", markers=True, title="Imports historiques (t/an)")
                 fig_imp.update_layout(height=280, margin=dict(l=10, r=10, t=40, b=10))
-                st.plotly_chart(fig_imp, use_container_width=True)
+                _portfolio_chart(fig_imp, use_container_width=True)
             with c2:
                 st.dataframe(results.summary_market, hide_index=True, use_container_width=True)
                 st.caption(
@@ -1918,7 +1945,7 @@ def _render_ramp() -> None:
             proj_df = pd.DataFrame({"Month": t, **{f"Marché — {s}": market_paths[s] for s in order}})
             fig_proj = px.line(proj_df, x="Month", y=[c for c in proj_df.columns if c != "Month"])
             fig_proj.update_layout(height=320, margin=dict(l=10, r=10, t=40, b=10))
-            st.plotly_chart(fig_proj, use_container_width=True)
+            _portfolio_chart(fig_proj, use_container_width=True)
 
             st.markdown("### Courbes (paramètres)")
             c1, c2, c3 = st.columns(3)
@@ -1930,11 +1957,11 @@ def _render_ramp() -> None:
                     yaxis_range=[0, 1],
                     title="Part de marché s(t)",
                 )
-                st.plotly_chart(fig_s, use_container_width=True)
+                _portfolio_chart(fig_s, use_container_width=True)
             with c2:
                 fig_q = px.line(pd.DataFrame({"Month": t, "Q(t)": results.Q_t}), x="Month", y="Q(t)")
                 fig_q.update_layout(height=250, margin=dict(l=10, r=10, t=40, b=10), title="Capacité Q(t) (t/an)")
-                st.plotly_chart(fig_q, use_container_width=True)
+                _portfolio_chart(fig_q, use_container_width=True)
             with c3:
                 lam_t = float(results.cfg.lam0) + (float(results.cfg.lam_max) - float(results.cfg.lam0)) * logistic(
                     t, float(results.cfg.k_lam), float(results.cfg.t0_lam)
@@ -1945,7 +1972,7 @@ def _render_ramp() -> None:
                     margin=dict(l=10, r=10, t=40, b=10),
                     title="Acquisition clients λ(t) (clients/mois)",
                 )
-                st.plotly_chart(fig_l, use_container_width=True)
+                _portfolio_chart(fig_l, use_container_width=True)
 
             Dm_sel = market_paths[str(results.cfg.scenario)]
             Daddr_sel = results.s_t * Dm_sel
@@ -1956,7 +1983,7 @@ def _render_ramp() -> None:
                 margin=dict(l=10, r=10, t=40, b=10),
                 title=f"Marché vs adressable — scénario '{results.cfg.scenario}'",
             )
-            st.plotly_chart(fig_ma, use_container_width=True)
+            _portfolio_chart(fig_ma, use_container_width=True)
 
             st.markdown("### Trajectoire exemple (1 simulation)")
             demo_df = pd.DataFrame(
@@ -1971,7 +1998,7 @@ def _render_ramp() -> None:
             )
             fig_demo = px.line(demo_df, x="Month", y=["Capacité", "Marché", "Adressable", "Demande clients", "Ventes"])
             fig_demo.update_layout(height=360, margin=dict(l=10, r=10, t=40, b=10))
-            st.plotly_chart(fig_demo, use_container_width=True)
+            _portfolio_chart(fig_demo, use_container_width=True)
 
             st.markdown("### Monte Carlo — P50 + bande ventes P10–P90")
             df = results.summary_df
@@ -2010,7 +2037,7 @@ def _render_ramp() -> None:
                 height=420,
                 margin=dict(l=10, r=10, t=40, b=10),
             )
-            st.plotly_chart(fig_main, use_container_width=True)
+            _portfolio_chart(fig_main, use_container_width=True)
 
             st.markdown("### Atteinte des seuils (Ventes P50)")
             st.dataframe(results.crossings_df, hide_index=True, use_container_width=True)
@@ -2058,9 +2085,9 @@ def _render_ramp() -> None:
                         height=320,
                         margin=dict(l=10, r=10, t=50, b=10),
                     )
-                    st.plotly_chart(fig, use_container_width=True)
+                    _portfolio_chart(fig, use_container_width=True)
 
-    with tabs[2]:
+    with tabs[3]:
         st.subheader("ABC Ramp — Export")
         results = st.session_state.get("ramp_results")
         if results is None:
@@ -2111,18 +2138,147 @@ def _render_ramp() -> None:
                 )
 
 
+
+def _portfolio_chart(fig, **kwargs) -> None:
+    """Compact industrial chart card with explicit title and ABC powder palette."""
+    from plotly.colors import qualitative
+    palette = ["#a9574d", "#c89b6c", "#596c78", "#7d9185", "#b8897b", "#a7a0a0"]
+    for idx, trace in enumerate(fig.data):
+        color = palette[idx % len(palette)]
+        if trace.type in ("bar", "histogram"):
+            trace.marker.color = color
+        elif trace.type in ("scatter", "scattergl"):
+            trace.line.color = color
+            if getattr(trace, "mode", None) and "markers" in trace.mode:
+                trace.marker.color = color
+    current_title = fig.layout.title.text if fig.layout.title else None
+    if not current_title or str(current_title).strip().lower() in ("undefined", "none"):
+        fig.update_layout(title_text="")
+    fig.update_layout(
+        template="plotly_white",
+        paper_bgcolor="#ffffff",
+        plot_bgcolor="#ffffff",
+        font=dict(family="Arial, sans-serif", color="#66727e", size=11),
+        title_font=dict(family="Arial, sans-serif", color="#293640", size=14),
+        colorway=palette,
+        hoverlabel=dict(bgcolor="#303a42", font_color="#ffffff"),
+        legend=dict(bgcolor="rgba(255,255,255,0)", font=dict(size=10)),
+        height=min(int(fig.layout.height or 270), 320),
+        margin=dict(l=12, r=12, t=42 if fig.layout.title.text else 20, b=28),
+    )
+    fig.update_xaxes(showgrid=True, gridcolor="#f0efec", zeroline=False)
+    fig.update_yaxes(showgrid=True, gridcolor="#f0efec", zeroline=False)
+    with st.container(border=True):
+        st.plotly_chart(fig, **kwargs)
+
+
+def _render_landscape_overview(module: str) -> None:
+    """Compact interactive scenario cockpit. Graphs show assumptions, not simulated outcomes."""
+    is_supply = "Raw Materials" in module
+    st.markdown('<div class="sr-overview-heading"><strong>🧯 Scenario cockpit</strong><span>LIVE ASSUMPTIONS · RUN THE MODEL IN PARAMETERS</span></div>', unsafe_allow_html=True)
+    if is_supply:
+        cfg = st.session_state["supply_cfg"]
+        df = st.session_state["supply_materials_df"].copy()
+        names = df["name"].astype(str).tolist()
+        shares = pd.to_numeric(df["x"], errors="coerce").fillna(0).clip(lower=0)
+        sources = df["source"].astype(str).str.lower()
+        k1,k2,k3,k4 = st.columns(4)
+        k1.metric("Materials", len(df))
+        k2.metric("Imported", int(sources.str.startswith("imp").sum()))
+        k3.metric("Horizon", f"{int(cfg['horizon_months'])} mo")
+        k4.metric("Iterations", f"{int(cfg['n_iter']):,}")
+        control_a,control_b = st.columns(2,gap="small")
+        with control_a:
+            cfg["horizon_months"] = st.slider("Planning horizon (months)",1,240,int(cfg["horizon_months"]),key="overview_supply_horizon")
+        with control_b:
+            cfg["n_iter"] = st.select_slider("Monte Carlo iterations",options=[100,500,1000,5000,10000,20000,50000,100000,200000],value=min([100,500,1000,5000,10000,20000,50000,100000,200000],key=lambda n:abs(n-int(cfg["n_iter"]))),key="overview_supply_iter")
+        local = pd.to_numeric(df["lt_mode_local"], errors="coerce").fillna(0)
+        imported = pd.to_numeric(df["lt_mode_import"], errors="coerce").fillna(0)
+        plots = []
+        plots.append(go.Figure(go.Bar(x=names,y=shares*100,name="Material share",marker_color="#ad6657")))
+        plots.append(go.Figure(data=[go.Bar(x=names,y=local,name="Local",marker_color="#c6a07e"),go.Bar(x=names,y=imported,name="Imported",marker_color="#596e79")]))
+        plots.append(go.Figure(go.Pie(labels=names,values=shares,hole=.64,marker=dict(colors=["#ad6657","#c6a07e","#596e79","#8a988a","#e2b6a4"]),textinfo="percent")))
+        plots.append(go.Figure(go.Bar(x=["Local","Imported"],y=[int((~sources.str.startswith("imp")).sum()),int(sources.str.startswith("imp").sum())],marker_color=["#c6a07e","#ad6657"])))
+        titles=["Material composition (%)","Sourcing lead times (months)","Material mix","Sourcing split"]
+    else:
+        cfg=st.session_state["ramp_cfg"]
+        months=max(1,min(int(cfg["months"]),240))
+        capacity=max(0.,float(cfg["Q_max"]))
+        target=max(0.,float(cfg["u_target"]))
+        k1,k2,k3,k4=st.columns(4)
+        k1.metric("Horizon",f"{months} mo")
+        k2.metric("Rated capacity",f"{capacity:,.0f} t/y")
+        k3.metric("Utilization",f"{target:.0%}")
+        k4.metric("Target throughput",f"{capacity*target:,.0f} t/y")
+        control_a,control_b=st.columns(2,gap="small")
+        with control_a:
+            cfg["months"]=st.slider("Planning horizon (months)",1,240,months,key="overview_ramp_horizon")
+        with control_b:
+            cfg["u_target"]=st.slider("Target utilization",0.,1.,min(1.,target),.05,key="overview_ramp_util")
+        months=int(cfg["months"]);target=float(cfg["u_target"])
+        x=np.arange(1,months+1)
+        t0=float(cfg["t0_cap"]);k=float(cfg["k_cap"])
+        ramp=capacity*target/(1.+np.exp(np.clip(-k*(x-t0),-700,700)))
+        imports=st.session_state["ramp_imports_df"].copy()
+        plots=[]
+        plots.append(go.Figure(go.Scatter(x=x,y=ramp,mode="lines",fill="tozeroy",line=dict(color="#ad6657",width=2))))
+        if not imports.empty and {"Year","Imports_tons"}.issubset(imports.columns):
+            plots.append(go.Figure(go.Bar(x=imports["Year"].astype(str),y=imports["Imports_tons"],marker_color="#c6a07e")))
+        else:
+            plots.append(go.Figure())
+        plots.append(go.Figure(go.Indicator(mode="gauge+number",value=target*100,number={"suffix":"%"},gauge={"axis":{"range":[0,100]},"bar":{"color":"#ad6657"}})))
+        plots.append(go.Figure(go.Scatter(x=x,y=np.full(months,capacity*target),mode="lines",line=dict(color="#596e79",dash="dash"))))
+        titles=["Capacity ramp (t/y)","Imports assumptions (t/y)","Target utilization","Target output (t/y)"]
+    for start in (0,2):
+        left,right=st.columns(2,gap="small")
+        for col,idx in ((left,start),(right,start+1)):
+            with col:
+                fig=plots[idx]
+                fig.update_layout(title=titles[idx],height=185)
+                _portfolio_chart(fig,use_container_width=True,config={"displayModeBar":False})
+    st.caption("Preview charts update with your assumptions. Run the Monte Carlo model under Parameters; inspect simulated outcomes under Results.")
+
+
 def main() -> None:
-    st.set_page_config(page_title="Monte Carlo ABC", layout="wide")
-    _ensure_state()
+    st.set_page_config(
+        page_title="ABC Powder Pilot Plant | Monte Carlo",
+        page_icon="🧯",
+        layout="wide",
+        initial_sidebar_state="collapsed",
+    )
+    # Render the branded hero before loading simulation state so the landing page
+    # remains visible even when a data/model initialization step is slow.
+    from pathlib import Path
+    css_path = Path(__file__).parent / "portfolio_theme.css"
+    if css_path.exists():
+        st.markdown("<style>" + css_path.read_text(encoding="utf-8") + "</style>", unsafe_allow_html=True)
 
-    st.title("Monte Carlo — ABC")
-    st.caption("Interface pour paramétrer et lancer plusieurs simulations Monte Carlo.")
+    st.markdown(
+        '<div class="sr-mini-brand"><span>🧯 &nbsp; ABC POWDER</span><span>SUPPLY RISK · MONTE CARLO SIMULATION</span><span class="sr-flame">◆ PILOT PLANT</span></div>',
+        unsafe_allow_html=True,
+    )
 
-    sim_tabs = st.tabs(["Supply Chain (Stocks)", "ABC Ramp (Marché/Capacité)"])
-    with sim_tabs[0]:
+    try:
+        _ensure_state()
+    except Exception as exc:
+        st.error("Unable to initialize simulation defaults. Please retry or inspect the deployment logs.")
+        st.exception(exc)
+        st.stop()
+
+    selected_module = st.radio(
+        "Simulation module",
+        ["◈  Raw Materials & Sourcing", "▥  Production & Capacity Ramp"],
+        horizontal=True,
+        label_visibility="collapsed",
+        key="portfolio_active_module",
+    )
+
+    if selected_module == "◈  Raw Materials & Sourcing":
         _render_supply_chain()
-    with sim_tabs[1]:
+    else:
         _render_ramp()
+
+
 
 
 if __name__ == "__main__":
