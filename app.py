@@ -2221,11 +2221,6 @@ def main() -> None:
             <img src="https://drive.google.com/thumbnail?id=1joPV7jUfA2CVr5bBJzDsNcOXmak1adSB&amp;sz=w1200" alt="ABC dry powder fire extinguisher" />
           </div>
         </div>
-        <div class="sr-dashboard-tiles">
-          <div class="sr-dashboard-tile"><span class="sr-tile-icon">01</span><div><strong>Material risk</strong><small>Supply availability &amp; shortages</small></div></div>
-          <div class="sr-dashboard-tile"><span class="sr-tile-icon">02</span><div><strong>Sourcing scenarios</strong><small>Local vs. imported materials</small></div></div>
-          <div class="sr-dashboard-tile"><span class="sr-tile-icon">03</span><div><strong>Production ramp-up</strong><small>Market &amp; capacity uncertainty</small></div></div>
-        </div>
         <div class="sr-section-intro sr-dashboard-section">
           <div><span class="sr-kicker">SIMULATION WORKSPACE</span><h2>Analysis &amp; scenarios</h2></div>
           <span class="sr-ready"><span>●</span> Interactive models</span>
