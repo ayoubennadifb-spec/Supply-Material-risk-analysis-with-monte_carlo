@@ -566,11 +566,12 @@ def _render_supply_chain() -> None:
                 "Part": [seasonality.hiver, seasonality.printemps, seasonality.ete, seasonality.automne],
             }
         )
+        chart_left, chart_right = st.columns(2, gap="medium")
         fig_season = px.bar(season_df, x="Saison", y="Part", range_y=[0, 1])
         fig_season.update_layout(height=250, margin=dict(l=10, r=10, t=30, b=10))
-        _portfolio_chart(fig_season, use_container_width=True)
+        with chart_left:
+            _portfolio_chart(fig_season, use_container_width=True)
 
-        st.markdown("### Preview plan de production")
         preview_annual = 0.5 * (
             float(st.session_state["supply_cfg"]["annual_min"]) + float(st.session_state["supply_cfg"]["annual_max"])
         )
@@ -584,7 +585,8 @@ def _render_supply_chain() -> None:
         preview_df = pd.DataFrame({"Mois": np.arange(1, len(plan_prod_preview) + 1), "Production": plan_prod_preview})
         fig_plan = px.line(preview_df, x="Mois", y="Production")
         fig_plan.update_layout(height=250, margin=dict(l=10, r=10, t=30, b=10))
-        _portfolio_chart(fig_plan, use_container_width=True)
+        with chart_right:
+            _portfolio_chart(fig_plan, use_container_width=True)
         st.caption(f"Preview basé sur une production annuelle constante = {preview_annual:.0f} t/an.")
 
         st.markdown("### Matières (MAP hors simulation)")
@@ -2113,21 +2115,36 @@ def _render_ramp() -> None:
 
 
 def _portfolio_chart(fig, **kwargs) -> None:
-    """Render every simulation chart in a consistent, accessible visual card."""
+    """Compact industrial chart card with explicit title and ABC powder palette."""
+    from plotly.colors import qualitative
+    palette = ["#a9574d", "#c89b6c", "#596c78", "#7d9185", "#b8897b", "#a7a0a0"]
+    for idx, trace in enumerate(fig.data):
+        color = palette[idx % len(palette)]
+        if trace.type in ("bar", "histogram"):
+            trace.marker.color = color
+        elif trace.type in ("scatter", "scattergl"):
+            trace.line.color = color
+            if getattr(trace, "mode", None) and "markers" in trace.mode:
+                trace.marker.color = color
+    current_title = fig.layout.title.text if fig.layout.title else None
+    if not current_title or str(current_title).strip().lower() in ("undefined", "none"):
+        fig.update_layout(title_text="")
     fig.update_layout(
+        template="plotly_white",
         paper_bgcolor="#ffffff",
         plot_bgcolor="#ffffff",
-        font=dict(family="DM Sans, Arial, sans-serif", color="#52647b", size=12),
-        title_font=dict(family="DM Sans, Arial, sans-serif", color="#172b44", size=16),
-        colorway=["#d62828", "#f0a202", "#30343b", "#d76b36", "#8b95a5"],
-        hoverlabel=dict(bgcolor="#142d46", font_color="#ffffff"),
-        legend=dict(bgcolor="rgba(255,255,255,0)", font=dict(size=11)),
+        font=dict(family="Arial, sans-serif", color="#66727e", size=11),
+        title_font=dict(family="Arial, sans-serif", color="#293640", size=14),
+        colorway=palette,
+        hoverlabel=dict(bgcolor="#303a42", font_color="#ffffff"),
+        legend=dict(bgcolor="rgba(255,255,255,0)", font=dict(size=10)),
+        height=min(int(fig.layout.height or 270), 320),
+        margin=dict(l=12, r=12, t=42 if fig.layout.title.text else 20, b=28),
     )
-    fig.update_xaxes(showgrid=True, gridcolor="#edf2f6", zerolinecolor="#edf2f6")
-    fig.update_yaxes(showgrid=True, gridcolor="#edf2f6", zerolinecolor="#edf2f6")
+    fig.update_xaxes(showgrid=True, gridcolor="#f0efec", zeroline=False)
+    fig.update_yaxes(showgrid=True, gridcolor="#f0efec", zeroline=False)
     with st.container(border=True):
         st.plotly_chart(fig, **kwargs)
-
 
 
 def _render_landscape_overview(module: str) -> None:
