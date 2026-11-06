@@ -2145,24 +2145,24 @@ def main() -> None:
 
     st.markdown(
         """
-        <section class="sr-hero sr-fire-hero">
-          <div class="sr-ember-field" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="sr-hero-content">
-            <span class="sr-eyebrow">ABC DRY POWDER / PILOT PRODUCTION PLANT</span>
-            <h1>Smarter supply decisions<br><span>for ABC powder production.</span></h1>
-            <p>Explore material availability, sourcing risk and production capacity through Monte Carlo simulation for an ABC powder pilot plant.</p>
-            <div class="sr-hero-tags">
-              <span>01 &nbsp; Raw materials</span>
-              <span>02 &nbsp; Supply resilience</span>
-              <span>03 &nbsp; Pilot plant ramp-up</span>
-            </div>
+        <div class="sr-dashboard-top">
+          <div class="sr-dashboard-heading">
+            <span class="sr-eyebrow">ABC POWDER · PILOT PRODUCTION PLANT</span>
+            <h1>Supply Risk <span>Dashboard</span></h1>
+            <p>Monte Carlo decision intelligence for materials, sourcing and production capacity.</p>
           </div>
-          <div class="sr-hero-photo" aria-label="ABC dry powder fire extinguishers">
-            <img src="https://drive.google.com/thumbnail?id=1joPV7jUfA2CVr5bBJzDsNcOXmak1adSB&amp;sz=w1200" alt="ABC dry powder extinguisher against an industrial fire-themed background" loading="eager" />
+          <div class="sr-dashboard-photo">
+            <img src="https://drive.google.com/thumbnail?id=1joPV7jUfA2CVr5bBJzDsNcOXmak1adSB&amp;sz=w1200" alt="ABC dry powder fire extinguisher" />
           </div>
-        </section>
-        <div class="sr-section-intro">
-          <div><span class="sr-kicker">YOUR WORKSPACE</span><h2>ABC powder · Simulation workbench</h2><p>Explore sourcing scenarios, shortage exposure, and production capacity for the pilot plant.</p></div>
-          <span class="sr-ready"><span>●</span> Models ready</span>
+        </div>
+        <div class="sr-dashboard-tiles">
+          <div class="sr-dashboard-tile"><span class="sr-tile-icon">01</span><div><strong>Material risk</strong><small>Supply availability &amp; shortages</small></div></div>
+          <div class="sr-dashboard-tile"><span class="sr-tile-icon">02</span><div><strong>Sourcing scenarios</strong><small>Local vs. imported materials</small></div></div>
+          <div class="sr-dashboard-tile"><span class="sr-tile-icon">03</span><div><strong>Production ramp-up</strong><small>Market &amp; capacity uncertainty</small></div></div>
+        </div>
+        <div class="sr-section-intro sr-dashboard-section">
+          <div><span class="sr-kicker">SIMULATION WORKSPACE</span><h2>Analysis &amp; scenarios</h2></div>
+          <span class="sr-ready"><span>●</span> Interactive models</span>
         </div>
         """,
         unsafe_allow_html=True,
