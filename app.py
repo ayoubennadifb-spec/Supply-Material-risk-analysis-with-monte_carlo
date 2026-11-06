@@ -2156,6 +2156,9 @@ def main() -> None:
               <span>03 &nbsp; Pilot plant ramp-up</span>
             </div>
           </div>
+          <div class="sr-hero-photo" aria-label="ABC dry powder fire extinguishers">
+            <img src="https://drive.google.com/thumbnail?id=1sNzLkbDfCamvdpQyu6I2qw2fzKhfJDnD&amp;sz=w1200" alt="ABC dry powder fire extinguishers used as visual reference for the pilot plant" loading="eager" />
+          </div>
           <div class="sr-hero-graphic" aria-hidden="true">
             <div class="sr-orbit sr-orbit-one"></div>
             <div class="sr-orbit sr-orbit-two"></div>
