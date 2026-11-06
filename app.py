@@ -2154,68 +2154,70 @@ def _portfolio_chart(fig, **kwargs) -> None:
 
 
 def _render_landscape_overview(module: str) -> None:
-    """Interactive, assumption-based overview; not a Monte Carlo result."""
-    st.markdown('<div class="sr-overview-heading"><strong>Scenario overview</strong><span>LIVE ASSUMPTIONS · NOT SIMULATION RESULTS</span></div>', unsafe_allow_html=True)
-    if "Raw Materials" in module:
+    """Compact interactive scenario cockpit. Graphs show assumptions, not simulated outcomes."""
+    is_supply = "Raw Materials" in module
+    st.markdown('<div class="sr-overview-heading"><strong>🧯 Scenario cockpit</strong><span>LIVE ASSUMPTIONS · RUN THE MODEL IN PARAMETERS</span></div>', unsafe_allow_html=True)
+    if is_supply:
         cfg = st.session_state["supply_cfg"]
         df = st.session_state["supply_materials_df"].copy()
         names = df["name"].astype(str).tolist()
         shares = pd.to_numeric(df["x"], errors="coerce").fillna(0).clip(lower=0)
-        sources = df["source"].astype(str).str.lower().tolist()
-        horizon = int(cfg["horizon_months"])
-        a, b, c, d = st.columns(4)
-        a.metric("Materials tracked", f"{len(df)}")
-        b.metric("Imported materials", f"{sum(v.startswith('imp') for v in sources)}")
-        c.metric("Planning horizon", f"{horizon} mo")
-        d.metric("Monte Carlo iterations", f"{int(cfg['n_iter']):,}")
-        left, right = st.columns(2, gap="medium")
-        with left:
-            fig = go.Figure(go.Bar(x=names, y=shares * 100, marker_color="#b66d5d",
-                                   hovertemplate="%{x}: %{y:.1f}%<extra></extra>"))
-            fig.update_layout(title="Raw material composition", yaxis_title="Share (%)",
-                              height=310, margin=dict(l=15,r=15,t=48,b=28))
-            _portfolio_chart(fig, use_container_width=True, config={"displayModeBar":False})
-        with right:
-            local = pd.to_numeric(df["lt_mode_local"], errors="coerce").fillna(0)
-            imported = pd.to_numeric(df["lt_mode_import"], errors="coerce").fillna(0)
-            fig = go.Figure()
-            fig.add_bar(name="Local", x=names, y=local, marker_color="#c0a48e")
-            fig.add_bar(name="Imported", x=names, y=imported, marker_color="#576779")
-            fig.update_layout(title="Typical sourcing lead times", barmode="group",
-                              yaxis_title="Months", height=310,
-                              margin=dict(l=15,r=15,t=48,b=28))
-            _portfolio_chart(fig, use_container_width=True, config={"displayModeBar":False})
+        sources = df["source"].astype(str).str.lower()
+        k1,k2,k3,k4 = st.columns(4)
+        k1.metric("Materials", len(df))
+        k2.metric("Imported", int(sources.str.startswith("imp").sum()))
+        k3.metric("Horizon", f"{int(cfg['horizon_months'])} mo")
+        k4.metric("Iterations", f"{int(cfg['n_iter']):,}")
+        control_a,control_b = st.columns(2,gap="small")
+        with control_a:
+            cfg["horizon_months"] = st.slider("Planning horizon (months)",1,240,int(cfg["horizon_months"]),key="overview_supply_horizon")
+        with control_b:
+            cfg["n_iter"] = st.select_slider("Monte Carlo iterations",options=[100,500,1000,5000,10000,20000,50000,100000,200000],value=min([100,500,1000,5000,10000,20000,50000,100000,200000],key=lambda n:abs(n-int(cfg["n_iter"]))),key="overview_supply_iter")
+        local = pd.to_numeric(df["lt_mode_local"], errors="coerce").fillna(0)
+        imported = pd.to_numeric(df["lt_mode_import"], errors="coerce").fillna(0)
+        plots = []
+        plots.append(go.Figure(go.Bar(x=names,y=shares*100,name="Material share",marker_color="#ad6657")))
+        plots.append(go.Figure(data=[go.Bar(x=names,y=local,name="Local",marker_color="#c6a07e"),go.Bar(x=names,y=imported,name="Imported",marker_color="#596e79")]))
+        plots.append(go.Figure(go.Pie(labels=names,values=shares,hole=.64,marker=dict(colors=["#ad6657","#c6a07e","#596e79","#8a988a","#e2b6a4"]),textinfo="percent")))
+        plots.append(go.Figure(go.Bar(x=["Local","Imported"],y=[int((~sources.str.startswith("imp")).sum()),int(sources.str.startswith("imp").sum())],marker_color=["#c6a07e","#ad6657"])))
+        titles=["Material composition (%)","Sourcing lead times (months)","Material mix","Sourcing split"]
     else:
-        cfg = st.session_state["ramp_cfg"]
-        months = max(1, min(int(cfg["months"]), 240))
-        capacity = max(0.0, float(cfg["Q_max"]))
-        target = max(0.0, float(cfg["util_target"]))
-        a,b,c,d = st.columns(4)
-        a.metric("Horizon", f"{months} mo")
-        b.metric("Rated capacity", f"{capacity:,.0f} t/y")
-        c.metric("Target utilization", f"{target:.0%}")
-        d.metric("Target throughput", f"{capacity*target:,.0f} t/y")
-        x = np.arange(1, months+1)
-        t0 = float(cfg["t0_cap"])
-        k = float(cfg["k_cap"])
-        ramp = capacity * target / (1.0 + np.exp(np.clip(-k*(x-t0), -700, 700)))
-        left,right = st.columns(2,gap="medium")
-        with left:
-            fig = go.Figure(go.Scatter(x=x,y=ramp,mode="lines",line=dict(color="#b66d5d",width=3),
-                                       fill="tozeroy",fillcolor="rgba(182,109,93,.09)"))
-            fig.update_layout(title="Capacity ramp assumption",xaxis_title="Month",
-                              yaxis_title="Tonnes/year",height=310,margin=dict(l=15,r=15,t=48,b=28))
-            _portfolio_chart(fig,use_container_width=True,config={"displayModeBar":False})
-        with right:
-            imp = st.session_state["ramp_imports_df"].copy()
-            if not imp.empty and {"Year","Imports_tons"}.issubset(imp.columns):
-                fig = go.Figure(go.Bar(x=imp["Year"].astype(str),y=imp["Imports_tons"],
-                                       marker_color="#576779"))
-                fig.update_layout(title="Imported volume assumptions",yaxis_title="Tonnes/year",
-                                  height=310,margin=dict(l=15,r=15,t=48,b=28))
+        cfg=st.session_state["ramp_cfg"]
+        months=max(1,min(int(cfg["months"]),240))
+        capacity=max(0.,float(cfg["Q_max"]))
+        target=max(0.,float(cfg["util_target"]))
+        k1,k2,k3,k4=st.columns(4)
+        k1.metric("Horizon",f"{months} mo")
+        k2.metric("Rated capacity",f"{capacity:,.0f} t/y")
+        k3.metric("Utilization",f"{target:.0%}")
+        k4.metric("Target throughput",f"{capacity*target:,.0f} t/y")
+        control_a,control_b=st.columns(2,gap="small")
+        with control_a:
+            cfg["months"]=st.slider("Planning horizon (months)",1,240,months,key="overview_ramp_horizon")
+        with control_b:
+            cfg["util_target"]=st.slider("Target utilization",0.,1.,min(1.,target),.05,key="overview_ramp_util")
+        months=int(cfg["months"]);target=float(cfg["util_target"])
+        x=np.arange(1,months+1)
+        t0=float(cfg["t0_cap"]);k=float(cfg["k_cap"])
+        ramp=capacity*target/(1.+np.exp(np.clip(-k*(x-t0),-700,700)))
+        imports=st.session_state["ramp_imports_df"].copy()
+        plots=[]
+        plots.append(go.Figure(go.Scatter(x=x,y=ramp,mode="lines",fill="tozeroy",line=dict(color="#ad6657",width=2))))
+        if not imports.empty and {"Year","Imports_tons"}.issubset(imports.columns):
+            plots.append(go.Figure(go.Bar(x=imports["Year"].astype(str),y=imports["Imports_tons"],marker_color="#c6a07e")))
+        else:
+            plots.append(go.Figure())
+        plots.append(go.Figure(go.Indicator(mode="gauge+number",value=target*100,number={"suffix":"%"},gauge={"axis":{"range":[0,100]},"bar":{"color":"#ad6657"}})))
+        plots.append(go.Figure(go.Scatter(x=x,y=np.full(months,capacity*target),mode="lines",line=dict(color="#596e79",dash="dash"))))
+        titles=["Capacity ramp (t/y)","Imports assumptions (t/y)","Target utilization","Target output (t/y)"]
+    for start in (0,2):
+        left,right=st.columns(2,gap="small")
+        for col,idx in ((left,start),(right,start+1)):
+            with col:
+                fig=plots[idx]
+                fig.update_layout(title=titles[idx],height=185)
                 _portfolio_chart(fig,use_container_width=True,config={"displayModeBar":False})
-            else:
-                st.info("Import assumptions can be configured below.")
+    st.caption("Preview charts update with your assumptions. Run the Monte Carlo model under Parameters; inspect simulated outcomes under Results.")
 
 
 def main() -> None:
