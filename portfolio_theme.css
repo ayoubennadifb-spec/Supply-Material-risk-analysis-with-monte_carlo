@@ -344,3 +344,30 @@ html,body{overflow-y:auto!important;scrollbar-width:thin;scrollbar-color:#b66e5e
 [data-testid="stAppViewContainer"]::-webkit-scrollbar-track,body::-webkit-scrollbar-track{background:#eeeae6;border-radius:10px}
 [data-testid="stAppViewContainer"]::-webkit-scrollbar-thumb,body::-webkit-scrollbar-thumb{background:#b66e5e;border:2px solid #eeeae6;border-radius:10px}
 [data-testid="stAppViewContainer"]::-webkit-scrollbar-thumb:hover,body::-webkit-scrollbar-thumb:hover{background:#913e39}
+
+/* Streamlit scroll fix: the main content viewport is the scroll owner.
+   Do not turn the viewport into overflow:visible or use competing body scrollbars. */
+html,body{height:100%!important;overflow:hidden!important}
+[data-testid="stAppViewContainer"]{
+  height:100vh!important;
+  max-height:100vh!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+[data-testid="stMain"]{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:100vh!important;
+  overflow-y:scroll!important;
+  overflow-x:hidden!important;
+  scrollbar-width:auto!important;
+  scrollbar-color:#b66e5e #eeeae6!important;
+  overscroll-behavior-y:contain!important;
+}
+[data-testid="stMain"]::-webkit-scrollbar{width:13px!important;display:block!important}
+[data-testid="stMain"]::-webkit-scrollbar-track{background:#eeeae6!important}
+[data-testid="stMain"]::-webkit-scrollbar-thumb{background:#b66e5e!important;border:3px solid #eeeae6!important;border-radius:20px!important}
+[data-testid="stMain"]::-webkit-scrollbar-thumb:hover{background:#923f39!important}
+[data-testid="stMain"] .block-container{height:auto!important;min-height:max-content!important;padding-bottom:3rem!important}
